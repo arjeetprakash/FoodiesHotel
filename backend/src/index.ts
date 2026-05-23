@@ -15,6 +15,27 @@ import { seedDatabase } from './seed.js';
 const app = express();
 const uploadDir = resolve(process.cwd(), config.uploadDir);
 
+function isAllowedOrigin(origin: string) {
+  if (config.nodeEnv !== 'production' && origin.startsWith('http://localhost')) {
+    return true;
+  }
+
+  const allowedOrigins = String(config.corsOrigin)
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  if (config.nodeEnv === 'production' && /^https:\/\/[a-z0-9-]+\.onrender\.com$/i.test(origin)) {
+    return true;
+  }
+
+  return false;
+}
+
 if (!existsSync(uploadDir)) {
   mkdirSync(uploadDir, { recursive: true });
 }
@@ -22,9 +43,7 @@ if (!existsSync(uploadDir)) {
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    if (config.nodeEnv !== 'production' && origin.startsWith('http://localhost')) return callback(null, true);
-    const allowed = String(config.corsOrigin).split(',').map((s) => s.trim());
-    if (allowed.includes(origin)) return callback(null, true);
+    if (isAllowedOrigin(origin)) return callback(null, true);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true
