@@ -15,6 +15,19 @@ export interface AdminCustomer extends AuthUser {
   createdAt?: string;
 }
 
+export interface AdminDayAnalytics {
+  date: string;
+  revenue: number;
+  orders: number;
+  customers: number;
+}
+
+export interface AdminAnalytics {
+  menuItems: number;
+  today: AdminDayAnalytics;
+  days: AdminDayAnalytics[];
+}
+
 export interface AuthSession {
   accessToken: string;
   refreshToken: string;

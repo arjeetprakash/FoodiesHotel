@@ -10,6 +10,7 @@ interface UserLike {
   address?: string;
   city?: string;
   pincode?: string;
+  createdAt?: Date;
 }
 
 interface MenuLike {
@@ -60,7 +61,8 @@ export function mapUser(user: UserLike) {
     phone: user.phone ?? '',
     address: user.address ?? '',
     city: user.city ?? '',
-    pincode: user.pincode ?? ''
+    pincode: user.pincode ?? '',
+    createdAt: user.createdAt ? user.createdAt.toISOString() : ''
   };
 }
 

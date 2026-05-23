@@ -2,6 +2,7 @@ import { useEffect, useState, type ChangeEvent } from 'react';
 import {
   createMenuItem,
   deleteMenuItem,
+  fetchAdminAnalytics,
   fetchAdminBranding,
   fetchAdminMenu,
   fetchAdminOrders,
@@ -15,7 +16,7 @@ import {
 import { verifyOrder } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { Shell } from '../components/Shell';
-import type { Branding, MenuItem, Order, AdminCustomer } from '../types';
+import type { AdminAnalytics, AdminCustomer, Branding, MenuItem, Order } from '../types';
 
 const blankItem: Omit<MenuItem, 'id'> = {
   name: '',
@@ -29,8 +30,10 @@ const blankItem: Omit<MenuItem, 'id'> = {
 
 export function AdminPage() {
   const { token } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'customers'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'menu' | 'orders' | 'customers'>('dashboard');
   const [summary, setSummary] = useState<{ customers: number; admins: number; items: number; orders: number; revenue: number } | null>(null);
+  const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
+  const [analyticsRange, setAnalyticsRange] = useState<1 | 7 | 30>(7);
   const [users, setUsers] = useState<AdminCustomer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<AdminCustomer | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -46,15 +49,23 @@ export function AdminPage() {
       return;
     }
 
-    Promise.all([fetchAdminSummary(token), fetchAdminUsers(token), fetchAdminOrders(token), fetchAdminMenu(token), fetchAdminBranding(token)])
-      .then(([summaryResponse, usersResponse, ordersResponse, menuResponse, brandingResponse]) => {
+    Promise.all([
+      fetchAdminSummary(token),
+      fetchAdminAnalytics(token, analyticsRange),
+      fetchAdminUsers(token),
+      fetchAdminOrders(token),
+      fetchAdminMenu(token),
+      fetchAdminBranding(token)
+    ])
+      .then(([summaryResponse, analyticsResponse, usersResponse, ordersResponse, menuResponse, brandingResponse]) => {
         setSummary(summaryResponse.summary);
+        setAnalytics(analyticsResponse.analytics);
         setUsers(usersResponse.users);
         setOrders(ordersResponse.orders);
         setMenu(menuResponse.items);
         setBranding(brandingResponse.branding);
       });
-  }, [token]);
+  }, [token, analyticsRange]);
 
   useEffect(() => {
     if (activeTab !== 'customers') {
@@ -67,8 +78,9 @@ export function AdminPage() {
       return;
     }
 
-    const [summaryResponse, usersResponse, ordersResponse, menuResponse, brandingResponse] = await Promise.all([
+    const [summaryResponse, analyticsResponse, usersResponse, ordersResponse, menuResponse, brandingResponse] = await Promise.all([
       fetchAdminSummary(token),
+      fetchAdminAnalytics(token, analyticsRange),
       fetchAdminUsers(token),
       fetchAdminOrders(token),
       fetchAdminMenu(token),
@@ -76,6 +88,7 @@ export function AdminPage() {
     ]);
 
     setSummary(summaryResponse.summary);
+    setAnalytics(analyticsResponse.analytics);
     setUsers(usersResponse.users);
     setOrders(ordersResponse.orders);
     setMenu(menuResponse.items);
@@ -118,24 +131,74 @@ export function AdminPage() {
     setStatusMessage(`${labels[target]} uploaded.`);
   };
 
+  const formatDayLabel = (value: string) => new Date(`${value}T00:00:00Z`).toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  });
+
   return (
     <Shell title="Admin Dashboard" subtitle="Manage the complete restaurant website from one control room.">
       <section className="dashboard-grid admin-grid">
         {activeTab === 'dashboard' && (
           <div className="stats-row">
-            <article className="stat-card"><span>Customers</span><strong>{summary?.customers ?? 0}</strong></article>
+            <article className="stat-card"><span>Today's Customers</span><strong>{analytics?.today.customers ?? 0}</strong></article>
             <article className="stat-card"><span>Menu items</span><strong>{summary?.items ?? 0}</strong></article>
-            <article className="stat-card"><span>Orders</span><strong>{summary?.orders ?? 0}</strong></article>
-            <article className="stat-card"><span>Revenue</span><strong>${summary?.revenue.toFixed(2) ?? '0.00'}</strong></article>
+            <article className="stat-card"><span>Today's Orders</span><strong>{analytics?.today.orders ?? 0}</strong></article>
+            <article className="stat-card"><span>Today's Revenue</span><strong>${(analytics?.today.revenue ?? 0).toFixed(2)}</strong></article>
           </div>
         )}
 
         <div style={{ gridColumn: '1 / -1' }}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             <button className={activeTab === 'dashboard' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('dashboard')}>Dashboard</button>
+            <button className={activeTab === 'analytics' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('analytics')}>Analytics</button>
+            <button className={activeTab === 'menu' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('menu')}>Menu</button>
+            <button className={activeTab === 'orders' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('orders')}>Orders</button>
             <button className={activeTab === 'customers' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('customers')}>Customers</button>
           </div>
         </div>
+
+        {activeTab === 'analytics' && (
+          <div className="panel panel-wide">
+            <div className="section-heading">
+              <h3>Daily Analytics</h3>
+              <p>Track revenue, orders, and customer signups by day.</p>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <button type="button" className="secondary-button" onClick={() => setActiveTab('dashboard')}>Back to Dashboard</button>
+            </div>
+
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              <button type="button" className={analyticsRange === 1 ? 'primary-button' : 'secondary-button'} onClick={() => setAnalyticsRange(1)}>Today</button>
+              <button type="button" className={analyticsRange === 7 ? 'primary-button' : 'secondary-button'} onClick={() => setAnalyticsRange(7)}>Last 7 Days</button>
+              <button type="button" className={analyticsRange === 30 ? 'primary-button' : 'secondary-button'} onClick={() => setAnalyticsRange(30)}>Last 30 Days</button>
+            </div>
+
+            <div className="stats-row">
+              <article className="stat-card"><span>Today Revenue</span><strong>${(analytics?.today.revenue ?? 0).toFixed(2)}</strong></article>
+              <article className="stat-card"><span>Today Orders</span><strong>{analytics?.today.orders ?? 0}</strong></article>
+              <article className="stat-card"><span>Today Customers</span><strong>{analytics?.today.customers ?? 0}</strong></article>
+              <article className="stat-card"><span>Menu items</span><strong>{analytics?.menuItems ?? 0}</strong></article>
+            </div>
+
+            <div className="admin-table">
+              {analytics?.days.map((day) => (
+                <article key={day.date} className="admin-order-row">
+                  <div>
+                    <strong>{formatDayLabel(day.date)}</strong>
+                    <div style={{ color: 'var(--muted)', marginTop: 6 }}>Revenue: ${day.revenue.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <span>Orders: {day.orders}</span>
+                    <strong>Customers: {day.customers}</strong>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
 
         {activeTab === 'dashboard' && (
           <>
@@ -176,11 +239,15 @@ export function AdminPage() {
           </>
         )}
 
-        {activeTab === 'dashboard' && (
+        {activeTab === 'menu' && (
           <div className="panel panel-wide">
           <div className="section-heading">
             <h3>Menu manager</h3>
             <p>Add, update, or remove dishes from the live menu.</p>
+          </div>
+
+          <div style={{ marginBottom: 12 }}>
+            <button type="button" className="secondary-button" onClick={() => setActiveTab('dashboard')}>Back to Dashboard</button>
           </div>
 
           <div className="form-grid">
@@ -215,11 +282,15 @@ export function AdminPage() {
           </div>
         )}
 
-        {activeTab === 'dashboard' && (
+        {activeTab === 'orders' && (
           <div className="panel panel-wide">
           <div className="section-heading">
             <h3>Orders</h3>
             <p>Track all customer purchases and update delivery state.</p>
+          </div>
+
+          <div style={{ marginBottom: 12 }}>
+            <button type="button" className="secondary-button" onClick={() => setActiveTab('dashboard')}>Back to Dashboard</button>
           </div>
 
           <div className="admin-table">

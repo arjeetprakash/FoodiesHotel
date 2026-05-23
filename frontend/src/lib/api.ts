@@ -1,4 +1,4 @@
-import type { AdminCustomer, AuthSession, AuthUser, Branding, MenuItem, Order, Role } from '../types';
+import type { AdminAnalytics, AdminCustomer, AuthSession, AuthUser, Branding, MenuItem, Order, Role } from '../types';
 
 const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api';
 
@@ -87,6 +87,10 @@ export async function placeOrder(token: string, payload: { items: Array<{ menuIt
 
 export async function fetchAdminSummary(token: string) {
   return request<{ summary: { customers: number; admins: number; items: number; orders: number; revenue: number } }>('/admin/summary', {}, token);
+}
+
+export async function fetchAdminAnalytics(token: string, days = 7) {
+  return request<{ analytics: AdminAnalytics }>(`/admin/analytics?days=${days}`, {}, token);
 }
 
 export async function fetchAdminUsers(token: string) {

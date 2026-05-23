@@ -9,6 +9,14 @@ import { mapBranding, mapMenuItem, mapOrder, mapUser } from '../mappers.js';
 
 export const adminRouter = Router();
 
+function formatDayKey(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function startOfDayUtc(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
 adminRouter.use(requireAuth, requireRole('admin'));
 
 adminRouter.get('/summary', asyncHandler(async (_req, res) => {
@@ -21,6 +29,59 @@ adminRouter.get('/summary', asyncHandler(async (_req, res) => {
 
   const revenue = ordersData.reduce((sum, order) => sum + (order.total ?? 0), 0);
   return res.json({ summary: { customers, admins, items, orders: ordersData.length, revenue } });
+}));
+
+adminRouter.get('/analytics', asyncHandler(async (req, res) => {
+  const rawDays = Number(req.query.days ?? 7);
+  const days = [1, 7, 30].includes(rawDays) ? rawDays : 7;
+
+  const now = new Date();
+  const startToday = startOfDayUtc(now);
+  const startWindow = startOfDayUtc(new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - (days - 1))));
+
+  const [orders, customers, menuItems] = await Promise.all([
+    OrderModel.find({ createdAt: { $gte: startWindow } }).select({ total: 1, createdAt: 1 }).lean(),
+    UserModel.find({ role: 'customer', createdAt: { $gte: startWindow } }).select({ createdAt: 1 }).lean(),
+    MenuItemModel.countDocuments()
+  ]);
+
+  const byDay = new Map<string, { date: string; revenue: number; orders: number; customers: number }>();
+
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    const day = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - offset));
+    const key = formatDayKey(day);
+    byDay.set(key, { date: key, revenue: 0, orders: 0, customers: 0 });
+  }
+
+  for (const order of orders) {
+    const createdAt = new Date(order.createdAt as Date);
+    const key = formatDayKey(createdAt);
+    const bucket = byDay.get(key);
+    if (bucket) {
+      bucket.orders += 1;
+      bucket.revenue += Number(order.total ?? 0);
+    }
+  }
+
+  for (const customer of customers) {
+    const createdAt = new Date(customer.createdAt as Date);
+    const key = formatDayKey(createdAt);
+    const bucket = byDay.get(key);
+    if (bucket) {
+      bucket.customers += 1;
+    }
+  }
+
+  const todayKey = formatDayKey(startToday);
+  const today = byDay.get(todayKey) ?? { date: todayKey, revenue: 0, orders: 0, customers: 0 };
+
+  return res.json({
+    analytics: {
+      menuItems,
+      today,
+      days: Array.from(byDay.values())
+    }
+  });
 }));
 
 adminRouter.get('/users', asyncHandler(async (_req, res) => {
