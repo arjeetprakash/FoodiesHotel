@@ -76,6 +76,10 @@ img {
   grid-template-columns: 280px 1fr;
 }
 
+.app-shell-admin {
+  grid-template-columns: 1fr;
+}
+
 .sidebar {
   padding: 32px 24px;
   background: rgba(34, 22, 14, 0.9);
@@ -129,12 +133,24 @@ img {
   padding: 32px;
 }
 
+.app-shell-admin .content-area {
+  padding: 28px 36px 40px;
+}
+
 .page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
   margin-bottom: 24px;
+}
+
+.page-header-admin {
+  padding: 22px 24px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 244, 235, 0.85));
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 }
 
 .eyebrow {
@@ -166,6 +182,11 @@ img {
   box-shadow: var(--shadow);
   display: grid;
   gap: 4px;
+}
+
+.profile-chip-compact {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .profile-chip span {
@@ -378,9 +399,210 @@ img {
   gap: 22px;
 }
 
+.admin-grid {
+  width: 100%;
+  max-width: none;
+  margin-top: 0;
+}
+
+.admin-grid .panel,
+.admin-grid .stats-row {
+  width: 100%;
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 28px;
+  background: rgba(255, 250, 243, 0.9);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.admin-topbar-brand,
+.admin-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-topbar-brand strong {
+  display: block;
+  font-size: 1.05rem;
+}
+
+.admin-topbar-brand span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.overflow-menu-wrap {
+  position: relative;
+}
+
+.overflow-button {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, #fff, #f8efe5);
+  cursor: pointer;
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: var(--shadow);
+}
+
+.overflow-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.overflow-drawer.is-open {
+  pointer-events: auto;
+}
+
+.overflow-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(27, 18, 10, 0.3);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+
+.overflow-drawer.is-open .overflow-backdrop {
+  opacity: 1;
+}
+
+.overflow-menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(360px, 92vw);
+  height: 100%;
+  padding: 22px 18px;
+  border-radius: 28px 0 0 28px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 10px;
+  transform: translateX(110%);
+  transition: transform 0.32s ease;
+}
+
+.overflow-drawer.is-open .overflow-menu {
+  transform: translateX(0);
+}
+
+.overflow-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.overflow-close {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.overflow-menu a,
+.overflow-menu button {
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.overflow-menu a:hover,
+.overflow-menu button:hover {
+  background: rgba(211, 84, 43, 0.08);
+}
+
 .panel {
   border-radius: 28px;
   padding: 24px;
+}
+
+.admin-tab-shell {
+  grid-column: 1 / -1;
+}
+
+.admin-tab-rail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  flex-wrap: wrap;
+}
+
+.admin-tab-button {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-tab-button.is-active {
+  background: linear-gradient(135deg, var(--brand), #f07b3f);
+  color: white;
+  box-shadow: 0 12px 24px rgba(211, 84, 43, 0.24);
+}
+
+.admin-tab-button:hover {
+  transform: translateY(-1px);
+  color: var(--text);
+}
+
+.admin-panel-stage {
+  animation: adminPanelFade 0.28s ease;
+}
+
+@keyframes adminPanelFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-tab-panel {
+  display: grid;
+  gap: 18px;
 }
 
 .panel-wide {
@@ -632,5 +854,22 @@ img {
 
   .page-header {
     flex-direction: column;
+  }
+
+  .admin-topbar {
+    padding: 16px 18px;
+  }
+
+  .overflow-menu {
+    width: min(320px, 100vw);
+    border-radius: 24px 0 0 24px;
+  }
+
+  .admin-tab-rail {
+    width: 100%;
+  }
+
+  .admin-tab-button {
+    flex: 1 1 auto;
   }
 }

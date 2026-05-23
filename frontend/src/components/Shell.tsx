@@ -4,9 +4,20 @@ import { useAuth } from '../lib/auth';
 import { fetchBranding } from '../lib/api';
 import type { Branding } from '../types';
 
-export function Shell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
+export function Shell({
+  title,
+  subtitle,
+  children,
+  variant = 'default'
+}: {
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+  variant?: 'default' | 'admin';
+}) {
   const { user, logout } = useAuth();
   const [branding, setBranding] = useState<Branding | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     fetchBranding()
@@ -14,8 +25,48 @@ export function Shell({ title, subtitle, children }: { title: string; subtitle: 
       .catch(() => undefined);
   }, []);
 
+  const closeMenu = () => setMenuOpen(false);
+
   return (
-    <div className="app-shell">
+    <div className={variant === 'admin' ? 'app-shell app-shell-admin' : 'app-shell'}>
+      {variant === 'admin' ? (
+        <header className="admin-topbar">
+          <div className="admin-topbar-brand">
+            <div className="brand-mark">FH</div>
+            <div>
+              <strong>{branding?.restaurantName ?? 'FoodiesHotel'}</strong>
+              <span>{title}</span>
+            </div>
+          </div>
+
+          <div className="admin-topbar-actions">
+            <div className="profile-chip profile-chip-compact">
+              <strong>{user?.name}</strong>
+              <span>{user?.email}</span>
+            </div>
+
+            <div className="overflow-menu-wrap">
+              <button type="button" className="overflow-button" onClick={() => setMenuOpen((current) => !current)} aria-label="Open admin menu" aria-expanded={menuOpen} aria-haspopup="dialog">
+                ⋮
+              </button>
+
+              <div className={`overflow-drawer ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen}>
+                <button type="button" className="overflow-backdrop" onClick={closeMenu} aria-label="Close admin menu" />
+                <div className="overflow-menu" role="dialog" aria-label="Admin menu">
+                  <div className="overflow-menu-header">
+                    <strong>Quick actions</strong>
+                    <button type="button" className="overflow-close" onClick={closeMenu} aria-label="Close menu">×</button>
+                  </div>
+                  <Link to={user?.role === 'admin' ? '/admin' : '/customer'} onClick={closeMenu}>Dashboard</Link>
+                  {user?.role === 'customer' && <Link to="/profile" onClick={closeMenu}>My Profile</Link>}
+                  <a href={`mailto:${branding?.supportEmail ?? 'support@foodieshotel.com'}`} onClick={closeMenu}>Support</a>
+                  <button type="button" onClick={() => { closeMenu(); logout(); }}>Log out</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+      ) : (
       <aside className="sidebar">
         <div>
           <div className="brand-mark">FH</div>
@@ -31,18 +82,21 @@ export function Shell({ title, subtitle, children }: { title: string; subtitle: 
 
         <button type="button" className="ghost-button" onClick={logout}>Log out</button>
       </aside>
+      )}
 
       <main className="content-area">
-        <header className="page-header">
+        <header className={variant === 'admin' ? 'page-header page-header-admin' : 'page-header'}>
           <div>
             <span className="eyebrow">{user?.role?.toUpperCase()}</span>
             <h2>{title}</h2>
             <p>{subtitle}</p>
           </div>
-          <div className="profile-chip">
-            <strong>{user?.name}</strong>
-            <span>{user?.email}</span>
-          </div>
+          {variant !== 'admin' && (
+            <div className="profile-chip">
+              <strong>{user?.name}</strong>
+              <span>{user?.email}</span>
+            </div>
+          )}
         </header>
 
         {children}

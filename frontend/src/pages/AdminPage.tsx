@@ -137,8 +137,16 @@ export function AdminPage() {
     day: 'numeric'
   });
 
+  const tabs = [
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'analytics', label: 'Analytics' },
+    { id: 'menu', label: 'Menu' },
+    { id: 'orders', label: 'Orders' },
+    { id: 'customers', label: 'Customers' }
+  ] as const;
+
   return (
-    <Shell title="Admin Dashboard" subtitle="Manage the complete restaurant website from one control room.">
+    <Shell title="Admin Dashboard" subtitle="Manage the complete restaurant website from one control room." variant="admin">
       <section className="dashboard-grid admin-grid">
         {activeTab === 'dashboard' && (
           <div className="stats-row">
@@ -149,18 +157,26 @@ export function AdminPage() {
           </div>
         )}
 
-        <div style={{ gridColumn: '1 / -1' }}>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-            <button className={activeTab === 'dashboard' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('dashboard')}>Dashboard</button>
-            <button className={activeTab === 'analytics' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('analytics')}>Analytics</button>
-            <button className={activeTab === 'menu' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('menu')}>Menu</button>
-            <button className={activeTab === 'orders' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('orders')}>Orders</button>
-            <button className={activeTab === 'customers' ? 'primary-button' : 'secondary-button'} onClick={() => setActiveTab('customers')}>Customers</button>
+        <div className="admin-tab-shell">
+          <div className="admin-tab-rail" role="tablist" aria-label="Admin sections">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                className={`admin-tab-button ${activeTab === tab.id ? 'is-active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
 
+        <div className="admin-panel-stage panel panel-wide" key={activeTab}>
         {activeTab === 'analytics' && (
-          <div className="panel panel-wide">
+          <div className="admin-tab-panel">
             <div className="section-heading">
               <h3>Daily Analytics</h3>
               <p>Track revenue, orders, and customer signups by day.</p>
@@ -201,7 +217,7 @@ export function AdminPage() {
         )}
 
         {activeTab === 'dashboard' && (
-          <>
+          <div className="admin-tab-panel">
             <div className="panel panel-wide">
           <div className="section-heading">
             <h3>Branding manager</h3>
@@ -236,11 +252,11 @@ export function AdminPage() {
           <button type="button" className="primary-button" onClick={saveBranding}>Save branding</button>
           {statusMessage ? <div className="success-banner">{statusMessage}</div> : null}
             </div>
-          </>
+          </div>
         )}
 
         {activeTab === 'menu' && (
-          <div className="panel panel-wide">
+          <div className="admin-tab-panel panel panel-wide">
           <div className="section-heading">
             <h3>Menu manager</h3>
             <p>Add, update, or remove dishes from the live menu.</p>
@@ -283,7 +299,7 @@ export function AdminPage() {
         )}
 
         {activeTab === 'orders' && (
-          <div className="panel panel-wide">
+          <div className="admin-tab-panel panel panel-wide">
           <div className="section-heading">
             <h3>Orders</h3>
             <p>Track all customer purchases and update delivery state.</p>
@@ -358,7 +374,7 @@ export function AdminPage() {
         )}
 
         {activeTab === 'customers' && (
-          <div className="panel panel-wide">
+          <div className="admin-tab-panel panel panel-wide">
             <div className="section-heading">
               <h3>Customers</h3>
               <p>All registered customers. Select a customer to view full details.</p>
@@ -399,6 +415,7 @@ export function AdminPage() {
             </div>
           </div>
         )}
+        </div>
       </section>
     </Shell>
   );
