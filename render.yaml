@@ -1,9 +1,8 @@
-services:
-  - type: static
-    name: foodieshotel-frontend
+staticSites:
+  - name: foodieshotel-frontend
     rootDir: frontend
     buildCommand: npm install && npm run build
-    staticPublishPath: dist
+    publishPath: dist
     envVars:
       - key: VITE_API_URL
         sync: false
@@ -12,6 +11,7 @@ services:
         source: /*
         destination: /index.html
 
+services:
   - type: web
     name: foodieshotel-backend
     runtime: node
