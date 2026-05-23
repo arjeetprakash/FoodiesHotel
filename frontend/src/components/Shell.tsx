@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { fetchBranding, recordWebsiteVisit } from '../lib/api';
+import { MenuActionIcon } from './MenuActionIcon';
 import type { Branding } from '../types';
 
 export function Shell({
@@ -37,36 +38,63 @@ export function Shell({
     <div className={variant === 'admin' ? 'app-shell app-shell-admin' : 'app-shell'}>
       {variant === 'admin' ? (
         <header className="admin-topbar">
-          <div className="admin-topbar-brand">
-            <div className="brand-mark">FH</div>
-            <div>
-              <strong>{branding?.restaurantName ?? 'FoodiesHotel'}</strong>
-              <span>{title}</span>
-            </div>
-          </div>
-
-          <div className="admin-topbar-actions">
-            <div className="profile-chip profile-chip-compact">
-              <strong>{user?.name}</strong>
-              <span>{user?.email}</span>
+          <div className="admin-topbar-inner">
+            <div className="admin-topbar-brand">
+              <div className="brand-mark">FH</div>
+              <div>
+                <strong>{branding?.restaurantName ?? 'FoodiesHotel'}</strong>
+                <span>{title}</span>
+              </div>
             </div>
 
-            <div className="overflow-menu-wrap">
-              <button type="button" className="overflow-button" onClick={() => setMenuOpen((current) => !current)} aria-label="Open admin menu" aria-expanded={menuOpen} aria-haspopup="dialog">
-                ⋮
-              </button>
+            <div className="admin-topbar-actions">
+              <div className="profile-chip profile-chip-compact">
+                <strong>{user?.name}</strong>
+                <span>{user?.email}</span>
+              </div>
 
-              <div className={`overflow-drawer ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen}>
-                <button type="button" className="overflow-backdrop" onClick={closeMenu} aria-label="Close admin menu" />
-                <div className="overflow-menu" role="dialog" aria-label="Admin menu">
-                  <div className="overflow-menu-header">
-                    <strong>Quick actions</strong>
-                    <button type="button" className="overflow-close" onClick={closeMenu} aria-label="Close menu">×</button>
+              <div className="overflow-menu-wrap">
+                <button type="button" className="overflow-button" onClick={() => setMenuOpen((current) => !current)} aria-label="Open admin menu" aria-expanded={menuOpen} aria-haspopup="dialog">
+                  ⋮
+                </button>
+
+                <div className={`overflow-drawer ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen}>
+                  <button type="button" className="overflow-backdrop" onClick={closeMenu} aria-label="Close admin menu" />
+                  <div className="overflow-menu" role="dialog" aria-label="Admin menu">
+                    <div className="overflow-menu-header">
+                      <div>
+                        <strong>Control Center</strong>
+                        <span>{user?.name}</span>
+                      </div>
+                      <button type="button" className="overflow-close" onClick={closeMenu} aria-label="Close menu">×</button>
+                    </div>
+                    <Link className="overflow-menu-item" to={user?.role === 'admin' ? '/admin' : '/customer'} onClick={closeMenu}>
+                      <span className="overflow-item-icon" aria-hidden="true">
+                        <MenuActionIcon name="dashboard" />
+                      </span>
+                      <span className="overflow-item-text">Dashboard</span>
+                    </Link>
+                    {user?.role === 'customer' && (
+                      <Link className="overflow-menu-item" to="/profile" onClick={closeMenu}>
+                        <span className="overflow-item-icon" aria-hidden="true">
+                          <MenuActionIcon name="profile" />
+                        </span>
+                        <span className="overflow-item-text">My Profile</span>
+                      </Link>
+                    )}
+                    <a className="overflow-menu-item" href={`mailto:${branding?.supportEmail ?? 'support@foodieshotel.com'}`} onClick={closeMenu}>
+                      <span className="overflow-item-icon" aria-hidden="true">
+                        <MenuActionIcon name="support" />
+                      </span>
+                      <span className="overflow-item-text">Support</span>
+                    </a>
+                    <button className="overflow-menu-item" type="button" onClick={() => { closeMenu(); logout(); }}>
+                      <span className="overflow-item-icon" aria-hidden="true">
+                        <MenuActionIcon name="logout" />
+                      </span>
+                      <span className="overflow-item-text">Log out</span>
+                    </button>
                   </div>
-                  <Link to={user?.role === 'admin' ? '/admin' : '/customer'} onClick={closeMenu}>Dashboard</Link>
-                  {user?.role === 'customer' && <Link to="/profile" onClick={closeMenu}>My Profile</Link>}
-                  <a href={`mailto:${branding?.supportEmail ?? 'support@foodieshotel.com'}`} onClick={closeMenu}>Support</a>
-                  <button type="button" onClick={() => { closeMenu(); logout(); }}>Log out</button>
                 </div>
               </div>
             </div>

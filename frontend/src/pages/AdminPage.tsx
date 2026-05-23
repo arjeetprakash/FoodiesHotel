@@ -169,7 +169,6 @@ export function AdminPage() {
             <article className="stat-card"><span>Menu items</span><strong>{summary?.items ?? 0}</strong></article>
             <article className="stat-card"><span>Today's Orders</span><strong>{analytics?.today.orders ?? 0}</strong></article>
             <article className="stat-card"><span>Today's Revenue</span><strong>${(analytics?.today.revenue ?? 0).toFixed(2)}</strong></article>
-            <article className="stat-card stat-card-vibrant"><span>Visitors</span><strong>{summary?.visitors ?? 0}</strong></article>
           </div>
         )}
 
@@ -434,7 +433,8 @@ export function AdminPage() {
         </div>
 
         <footer className="admin-footer panel panel-wide">
-          <div className="admin-footer-brand">
+          <div className="admin-footer-top">
+            <div className="admin-footer-brand">
             <div className="brand-mark">FH</div>
             <div>
               <strong>FoodiesHotel</strong>
@@ -443,31 +443,16 @@ export function AdminPage() {
           </div>
 
           <div className="admin-footer-details">
-            <div>
-              <span>Address</span>
-              <strong>123 Main Street, New York, NY 10001</strong>
-            </div>
-            <div>
-              <span>Phone</span>
-              <strong>+1 (234) 567-890</strong>
-            </div>
-            <div>
-              <span>Email</span>
-              <strong>{branding?.supportEmail ?? 'support@foodieshotel.com'}</strong>
-            </div>
-            <div>
-              <span>Visitors</span>
-              <strong>{summary?.visitors ?? 0}</strong>
-            </div>
-            <div>
-              <span>Managed by</span>
-              <strong>FoodiesHotel Admin Team</strong>
-            </div>
+            <span>123 Main Street, New York, NY 10001</span>
+            <span>+1 (234) 567-890</span>
+            <span>{branding?.supportEmail ?? 'support@foodieshotel.com'}</span>
+            <span>Managed by FoodiesHotel Admin Team</span>
+          </div>
           </div>
 
-          <div className="admin-footer-timestamp">
-            <span>Current date & time</span>
-            <strong>{footerTime}</strong>
+          <div className="admin-footer-bottom">
+            <span className="admin-footer-visitors">Visitors: {summary?.visitors ?? 0}</span>
+            <span className="admin-footer-time">{footerTime}</span>
           </div>
         </footer>
       </section>
