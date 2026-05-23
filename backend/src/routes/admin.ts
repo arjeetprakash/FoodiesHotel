@@ -4,6 +4,7 @@ import { MenuItemModel } from '../models/MenuItem.js';
 import { OrderModel } from '../models/Order.js';
 import { UserModel } from '../models/User.js';
 import { BrandingModel } from '../models/Branding.js';
+import { WebsiteVisitModel } from '../models/WebsiteVisit.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { mapBranding, mapMenuItem, mapOrder, mapUser } from '../mappers.js';
 
@@ -26,9 +27,10 @@ adminRouter.get('/summary', asyncHandler(async (_req, res) => {
     MenuItemModel.countDocuments(),
     OrderModel.find().select({ total: 1 }).lean()
   ]);
+  const visitors = await WebsiteVisitModel.findOne({ key: 'main' }).select({ count: 1 }).lean();
 
   const revenue = ordersData.reduce((sum, order) => sum + (order.total ?? 0), 0);
-  return res.json({ summary: { customers, admins, items, orders: ordersData.length, revenue } });
+  return res.json({ summary: { customers, admins, items, orders: ordersData.length, revenue, visitors: visitors?.count ?? 0 } });
 }));
 
 adminRouter.get('/analytics', asyncHandler(async (req, res) => {

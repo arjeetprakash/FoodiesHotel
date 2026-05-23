@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import { fetchBranding } from '../lib/api';
+import { fetchBranding, recordWebsiteVisit } from '../lib/api';
 import type { Branding } from '../types';
 
 export function Shell({
@@ -23,6 +23,12 @@ export function Shell({
     fetchBranding()
       .then((response) => setBranding(response.branding))
       .catch(() => undefined);
+
+    const visitKey = 'foodieshotel-visit-recorded';
+    if (!sessionStorage.getItem(visitKey)) {
+      sessionStorage.setItem(visitKey, '1');
+      recordWebsiteVisit().catch(() => undefined);
+    }
   }, []);
 
   const closeMenu = () => setMenuOpen(false);

@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import { UserModel } from './models/User.js';
 import { MenuItemModel } from './models/MenuItem.js';
 import { BrandingModel } from './models/Branding.js';
+import { WebsiteVisitModel } from './models/WebsiteVisit.js';
 
 const seedMenu = [
   {
@@ -89,5 +90,10 @@ export async function seedDatabase() {
       supportEmail: 'support@foodieshotel.com',
       paymentQrCodeUrl: ''
     });
+  }
+
+  const visitCounter = await WebsiteVisitModel.findOne({ key: 'main' }).lean();
+  if (!visitCounter) {
+    await WebsiteVisitModel.create({ key: 'main', count: 0 });
   }
 }

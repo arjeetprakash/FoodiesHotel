@@ -74,6 +74,12 @@ export async function fetchBranding() {
   return request<{ branding: Branding }>('/branding');
 }
 
+export async function recordWebsiteVisit() {
+  return request<{ visitors: number }>('/visits', {
+    method: 'POST'
+  });
+}
+
 export async function fetchOrders(token: string) {
   return request<{ orders: Order[] }>('/orders', {}, token);
 }
@@ -86,7 +92,7 @@ export async function placeOrder(token: string, payload: { items: Array<{ menuIt
 }
 
 export async function fetchAdminSummary(token: string) {
-  return request<{ summary: { customers: number; admins: number; items: number; orders: number; revenue: number } }>('/admin/summary', {}, token);
+  return request<{ summary: { customers: number; admins: number; items: number; orders: number; revenue: number; visitors: number } }>('/admin/summary', {}, token);
 }
 
 export async function fetchAdminAnalytics(token: string, days = 7) {

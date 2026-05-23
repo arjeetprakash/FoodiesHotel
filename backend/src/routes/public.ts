@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { MenuItemModel } from '../models/MenuItem.js';
 import { BrandingModel } from '../models/Branding.js';
+import { WebsiteVisitModel } from '../models/WebsiteVisit.js';
 import { mapBranding, mapMenuItem } from '../mappers.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
@@ -18,4 +19,14 @@ publicRouter.get('/branding', asyncHandler(async (_req, res) => {
   }
 
   return res.json({ branding: mapBranding(branding) });
+}));
+
+publicRouter.post('/visits', asyncHandler(async (_req, res) => {
+  const visitor = await WebsiteVisitModel.findOneAndUpdate(
+    { key: 'main' },
+    { $inc: { count: 1 } },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  ).lean();
+
+  return res.json({ visitors: visitor?.count ?? 0 });
 }));

@@ -31,7 +31,7 @@ const blankItem: Omit<MenuItem, 'id'> = {
 export function AdminPage() {
   const { token } = useAuth();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'menu' | 'orders' | 'customers'>('dashboard');
-  const [summary, setSummary] = useState<{ customers: number; admins: number; items: number; orders: number; revenue: number } | null>(null);
+  const [summary, setSummary] = useState<{ customers: number; admins: number; items: number; orders: number; revenue: number; visitors: number } | null>(null);
   const [analytics, setAnalytics] = useState<AdminAnalytics | null>(null);
   const [analyticsRange, setAnalyticsRange] = useState<1 | 7 | 30>(7);
   const [users, setUsers] = useState<AdminCustomer[]>([]);
@@ -43,6 +43,7 @@ export function AdminPage() {
   const [statusMessage, setStatusMessage] = useState('');
   const [verifyingOrderId, setVerifyingOrderId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
+  const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
 
   useEffect(() => {
     if (!token) {
@@ -72,6 +73,11 @@ export function AdminPage() {
       setSelectedCustomer(null);
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setCurrentDateTime(new Date()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const refresh = async () => {
     if (!token) {
@@ -145,6 +151,15 @@ export function AdminPage() {
     { id: 'customers', label: 'Customers' }
   ] as const;
 
+  const footerTime = currentDateTime.toLocaleString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+
   return (
     <Shell title="Admin Dashboard" subtitle="Manage the complete restaurant website from one control room." variant="admin">
       <section className="dashboard-grid admin-grid">
@@ -154,6 +169,7 @@ export function AdminPage() {
             <article className="stat-card"><span>Menu items</span><strong>{summary?.items ?? 0}</strong></article>
             <article className="stat-card"><span>Today's Orders</span><strong>{analytics?.today.orders ?? 0}</strong></article>
             <article className="stat-card"><span>Today's Revenue</span><strong>${(analytics?.today.revenue ?? 0).toFixed(2)}</strong></article>
+            <article className="stat-card stat-card-vibrant"><span>Visitors</span><strong>{summary?.visitors ?? 0}</strong></article>
           </div>
         )}
 
@@ -416,6 +432,44 @@ export function AdminPage() {
           </div>
         )}
         </div>
+
+        <footer className="admin-footer panel panel-wide">
+          <div className="admin-footer-brand">
+            <div className="brand-mark">FH</div>
+            <div>
+              <strong>FoodiesHotel</strong>
+              <span>Managed by FoodiesHotel Admin Team</span>
+            </div>
+          </div>
+
+          <div className="admin-footer-details">
+            <div>
+              <span>Address</span>
+              <strong>123 Main Street, New York, NY 10001</strong>
+            </div>
+            <div>
+              <span>Phone</span>
+              <strong>+1 (234) 567-890</strong>
+            </div>
+            <div>
+              <span>Email</span>
+              <strong>{branding?.supportEmail ?? 'support@foodieshotel.com'}</strong>
+            </div>
+            <div>
+              <span>Visitors</span>
+              <strong>{summary?.visitors ?? 0}</strong>
+            </div>
+            <div>
+              <span>Managed by</span>
+              <strong>FoodiesHotel Admin Team</strong>
+            </div>
+          </div>
+
+          <div className="admin-footer-timestamp">
+            <span>Current date & time</span>
+            <strong>{footerTime}</strong>
+          </div>
+        </footer>
       </section>
     </Shell>
   );
