@@ -10,7 +10,7 @@ const seedMenu = [
     description: 'Beef patty, cheddar, onion jam, and house sauce.',
     category: 'Burgers',
     price: 12.5,
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://picsum.photos/seed/signature-burger/1200/800',
     featured: true,
     available: true
   },
@@ -19,7 +19,7 @@ const seedMenu = [
     description: 'Fresh pasta with parmesan cream and herbs.',
     category: 'Pasta',
     price: 14,
-    image: 'https://images.unsplash.com/photo-1645112411341-6c4fd023714a?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://picsum.photos/seed/alfredo-pasta/1200/800',
     featured: true,
     available: true
   },
@@ -28,7 +28,7 @@ const seedMenu = [
     description: 'Rice, vegetables, grilled chicken, and spicy mayo.',
     category: 'Bowls',
     price: 11,
-    image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://picsum.photos/seed/chicken-bowl/1200/800',
     featured: false,
     available: true
   },
@@ -37,7 +37,7 @@ const seedMenu = [
     description: 'Warm cake with a molten chocolate center.',
     category: 'Desserts',
     price: 7.5,
-    image: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=1200&q=80',
+    image: 'https://picsum.photos/seed/lava-cake/1200/800',
     featured: true,
     available: true
   }
