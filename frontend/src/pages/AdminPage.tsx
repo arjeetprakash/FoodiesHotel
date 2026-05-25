@@ -17,9 +17,6 @@ import { verifyOrder } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import Skeleton from '../components/Skeleton';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-gsap.registerPlugin(ScrollTrigger);
 import { Shell } from '../components/Shell';
 import type { AdminAnalytics, AdminCustomer, Branding, MenuItem, Order } from '../types';
 
@@ -49,6 +46,14 @@ export function AdminPage() {
   const [verifyingOrderId, setVerifyingOrderId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState('');
   const [currentDateTime, setCurrentDateTime] = useState(() => new Date());
+  const dashboardStatsRef = useRef<HTMLDivElement | null>(null);
+  const analyticsRowsRef = useRef<HTMLDivElement | null>(null);
+  const menuListRef = useRef<HTMLDivElement | null>(null);
+  const ordersListRef = useRef<HTMLDivElement | null>(null);
+  const dashboardStatsAnimated = useRef(false);
+  const analyticsRowsAnimated = useRef(false);
+  const menuListAnimated = useRef(false);
+  const ordersListAnimated = useRef(false);
 
   useEffect(() => {
     if (!token) {
@@ -83,6 +88,62 @@ export function AdminPage() {
     const timer = window.setInterval(() => setCurrentDateTime(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const el = dashboardStatsRef.current;
+    if (!el || activeTab !== 'dashboard' || dashboardStatsAnimated.current || !analytics) {
+      return;
+    }
+
+    dashboardStatsAnimated.current = true;
+    gsap.fromTo(
+      Array.from(el.children),
+      { autoAlpha: 0, y: 8 },
+      { autoAlpha: 1, y: 0, stagger: 0.06, duration: 0.5, ease: 'power2.out', clearProps: 'opacity,transform' }
+    );
+  }, [activeTab, analytics, summary]);
+
+  useEffect(() => {
+    const el = analyticsRowsRef.current;
+    if (!el || activeTab !== 'analytics' || analyticsRowsAnimated.current || !analytics?.days.length) {
+      return;
+    }
+
+    analyticsRowsAnimated.current = true;
+    gsap.fromTo(
+      Array.from(el.children),
+      { autoAlpha: 0, y: 10 },
+      { autoAlpha: 1, y: 0, stagger: 0.06, duration: 0.6, ease: 'power2.out', clearProps: 'opacity,transform' }
+    );
+  }, [activeTab, analytics]);
+
+  useEffect(() => {
+    const el = menuListRef.current;
+    if (!el || activeTab !== 'menu' || menuListAnimated.current || !menu.length) {
+      return;
+    }
+
+    menuListAnimated.current = true;
+    gsap.fromTo(
+      Array.from(el.children),
+      { autoAlpha: 0, y: 12 },
+      { autoAlpha: 1, y: 0, stagger: 0.06, duration: 0.5, ease: 'power2.out', clearProps: 'opacity,transform' }
+    );
+  }, [activeTab, menu]);
+
+  useEffect(() => {
+    const el = ordersListRef.current;
+    if (!el || activeTab !== 'orders' || ordersListAnimated.current || !orders.length) {
+      return;
+    }
+
+    ordersListAnimated.current = true;
+    gsap.fromTo(
+      Array.from(el.children),
+      { autoAlpha: 0, y: 12 },
+      { autoAlpha: 1, y: 0, stagger: 0.04, duration: 0.5, ease: 'power2.out', clearProps: 'opacity,transform' }
+    );
+  }, [activeTab, orders]);
 
   const refresh = async () => {
     if (!token) {
@@ -169,10 +230,7 @@ export function AdminPage() {
     <Shell title="Admin Dashboard" subtitle="Manage the complete restaurant website from one control room." variant="admin">
       <section className="dashboard-grid admin-grid">
         {activeTab === 'dashboard' && (
-          <div className="stats-row" ref={(el) => {
-            if (!el) return;
-            gsap.fromTo(Array.from(el.children), { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, stagger: 0.06, duration: 0.5, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 90%' } });
-          }}>
+          <div className="stats-row" ref={dashboardStatsRef}>
             {analytics ? (
               <>
                 <article className="stat-card"><span>Today's Customers</span><strong>{analytics.today.customers}</strong></article>
@@ -233,10 +291,7 @@ export function AdminPage() {
               <article className="stat-card"><span>Menu items</span><strong>{analytics?.menuItems ?? 0}</strong></article>
             </div>
 
-              <div className="admin-table" ref={(el) => {
-                if (!el) return;
-                gsap.fromTo(Array.from(el.children), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, stagger: 0.06, duration: 0.6, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 90%' } });
-              }}>
+              <div className="admin-table" ref={analyticsRowsRef}>
                 {analytics?.days.map((day) => (
                   <article key={day.date} className="admin-order-row">
                     <div>
@@ -318,10 +373,7 @@ export function AdminPage() {
 
           <button type="button" className="primary-button" onClick={saveItem}>Create menu item</button>
 
-          <div className="admin-menu-list" ref={(el) => {
-            if (!el) return;
-            gsap.fromTo(Array.from(el.children), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, stagger: 0.06, duration: 0.5, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 90%' } });
-          }}>
+          <div className="admin-menu-list" ref={menuListRef}>
             {menu.length ? (
               menu.map((item) => (
                 <article key={item.id} className="admin-item-card">
@@ -364,10 +416,7 @@ export function AdminPage() {
             <button type="button" className="secondary-button" onClick={() => setActiveTab('dashboard')}>Back to Dashboard</button>
           </div>
 
-          <div className="admin-table" ref={(el) => {
-            if (!el) return;
-            gsap.fromTo(Array.from(el.children), { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, stagger: 0.04, duration: 0.5, ease: 'power2.out', scrollTrigger: { trigger: el, start: 'top 90%' } });
-          }}>
+          <div className="admin-table" ref={ordersListRef}>
             {orders.length ? (
               orders.map((order) => (
                 <article key={order.id} className="admin-order-row">
