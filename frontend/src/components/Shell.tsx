@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { fetchBranding, recordWebsiteVisit } from '../lib/api';
 import { MenuActionIcon } from './MenuActionIcon';
+import BottomNav from './BottomNav';
 import type { Branding } from '../types';
 
 export function Shell({
@@ -19,6 +20,7 @@ export function Shell({
   const { user, logout } = useAuth();
   const [branding, setBranding] = useState<Branding | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const themeStyle = branding?.primaryColor ? ({ '--brand': branding.primaryColor } as CSSProperties) : undefined;
 
   useEffect(() => {
     fetchBranding()
@@ -35,7 +37,7 @@ export function Shell({
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <div className={variant === 'admin' ? 'app-shell app-shell-admin' : 'app-shell'}>
+    <div className={variant === 'admin' ? 'app-shell app-shell-admin' : 'app-shell'} style={themeStyle}>
       {variant === 'admin' ? (
         <header className="admin-topbar">
           <div className="admin-topbar-inner">
@@ -117,6 +119,8 @@ export function Shell({
         <button type="button" className="ghost-button" onClick={logout}>Log out</button>
       </aside>
       )}
+
+      {variant !== 'admin' && <BottomNav />}
 
       <main className="content-area">
         <header className={variant === 'admin' ? 'page-header page-header-admin' : 'page-header'}>

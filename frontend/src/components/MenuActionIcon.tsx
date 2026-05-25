@@ -1,4 +1,4 @@
-export type MenuActionIconName = 'dashboard' | 'profile' | 'support' | 'logout';
+export type MenuActionIconName = 'dashboard' | 'profile' | 'support' | 'logout' | 'home' | 'menu' | 'cart';
 
 export function MenuActionIcon({ name }: { name: MenuActionIconName }) {
   if (name === 'dashboard') {
@@ -27,6 +27,35 @@ export function MenuActionIcon({ name }: { name: MenuActionIconName }) {
         <circle cx="12" cy="12" r="9" />
         <path d="M12 8v8" />
         <path d="M8 12h8" />
+      </svg>
+    );
+  }
+
+  if (name === 'home') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 11.5L12 4l9 7.5" />
+        <path d="M9 22V12h6v10" />
+      </svg>
+    );
+  }
+
+  if (name === 'menu') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M3 6h18" />
+        <path d="M3 12h18" />
+        <path d="M3 18h18" />
+      </svg>
+    );
+  }
+
+  if (name === 'cart') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="9" cy="20" r="1" />
+        <circle cx="20" cy="20" r="1" />
+        <path d="M3 3h2l2.6 12.2A2 2 0 0 0 9.6 17h7.8a2 2 0 0 0 2-1.6L21 6H6" />
       </svg>
     );
   }

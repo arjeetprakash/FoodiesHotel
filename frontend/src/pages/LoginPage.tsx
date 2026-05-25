@@ -1,8 +1,9 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import { forgotPassword, resetPassword } from '../lib/api';
+import { fetchBranding, forgotPassword, resetPassword } from '../lib/api';
 import type { Role } from '../types';
+import type { Branding } from '../types';
 
 const demoCredentials: Record<Role, { email: string; password: string }> = {
   admin: { email: 'admin@foodieshotel.com', password: 'admin123' },
@@ -14,6 +15,7 @@ export function LoginPage() {
   const params = useParams();
   const role = (params.role === 'admin' ? 'admin' : 'customer') as Role;
   const { login, register } = useAuth();
+  const [branding, setBranding] = useState<Branding | null>(null);
   const [mode, setMode] = useState<'login' | 'register' | 'forgot' | 'reset'>('login');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -25,6 +27,13 @@ export function LoginPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const themeStyle = branding?.primaryColor ? ({ '--brand': branding.primaryColor } as CSSProperties) : undefined;
+
+  useEffect(() => {
+    fetchBranding()
+      .then((response) => setBranding(response.branding))
+      .catch(() => undefined);
+  }, []);
 
   const heading = useMemo(() => (role === 'admin' ? 'Admin Portal' : 'Customer Login'), [role]);
 
@@ -69,7 +78,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="login-screen">
+    <div className="login-screen" style={themeStyle}>
       <form className="login-card" onSubmit={handleSubmit}>
         <span className="eyebrow">{heading}</span>
         <h1>{role === 'admin' ? 'Manage every part of the restaurant' : 'Order from your favourite meals'}</h1>
